@@ -1,0 +1,26 @@
+# deps
+node_modules/
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# builds
+dist/
+build/
+out/
+
+# env / secrets
+.env
+.env.*
+*.key
+*.pem
+
+# OS / editors
+.DS_Store
+.vscode/
+.idea/
+
+# hackathon scratch
+scratch/
+*.log
