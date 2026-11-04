@@ -182,13 +182,20 @@ export function SimPanel({ total, forecastDry }: { total: number; forecastDry: n
   return (
     <div className="stack">
       <div className="seg wide">
-        {(['coverage', 'playback', 'forecast'] as const).map((l) => (
+        {(['health', 'coverage', 'playback', 'forecast'] as const).map((l) => (
           <button key={l} className={s.layer === l ? 'on' : ''} onClick={() => s.set({ layer: l, playing: false })}>
-            {l === 'coverage' ? 'Coverage' : l === 'playback' ? 'Run cycle' : '7-day'}
+            {l === 'health' ? 'Health' : l === 'coverage' ? 'Coverage' : l === 'playback' ? 'Run cycle' : '7-day'}
           </button>
         ))}
       </div>
 
+      {s.layer === 'health' && (
+        <p className="muted small">
+          {yard.health.length
+            ? `Grass health today, read by Muse Spark from your photos (${yard.health.filter((h) => h.status !== 'healthy').length} stressed or dry patches). Squares it didn't rate show as healthy by default.`
+            : "No grass-health read for this yard — Muse Spark didn't run when it was built. The map shows a default, not a measurement."}
+        </p>
+      )}
       {s.layer === 'coverage' && <p className="muted small">Heatmap of how much water each square foot gets while the system runs. Brown = gap, teal/blue = puddling.</p>}
 
       {s.layer === 'playback' && (

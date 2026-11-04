@@ -4,7 +4,7 @@ import { cellColors, type ColorMode } from '../scene/colors';
 import { YardScene } from '../scene/YardScene';
 import { applyChanges, clampHead } from '../sim/changes';
 import { coverage, metrics as computeMetrics, zoneRates } from '../sim/coverage';
-import { forecast } from '../sim/forecast';
+import { forecast, initialMoisture } from '../sim/forecast';
 import { buildGrid } from '../sim/grid';
 import { activeZoneAt, appliedAt, timelineMinutes } from '../sim/playback';
 import { catalog, useApp } from '../store';
@@ -36,9 +36,10 @@ export default function Studio() {
 
   const colorMode: ColorMode = useMemo(() => {
     if (s.layer === 'playback') return { kind: 'applied', values: appliedAt(grid, shownLayout, catalog, s.playT, rates) };
+    if (s.layer === 'health') return { kind: 'moisture', values: initialMoisture(grid, yard.health) };
     if (s.layer === 'forecast' && fc) return { kind: 'moisture', values: fc.days[Math.min(s.day, fc.days.length - 1)] };
     return { kind: 'coverage', values: rate, mean: metrics.meanRateInHr };
-  }, [s.layer, s.playT, s.day, grid, shownLayout, rates, fc, rate, metrics.meanRateInHr]);
+  }, [s.layer, s.playT, s.day, grid, shownLayout, rates, fc, rate, metrics.meanRateInHr, yard.health]);
   const colors = useMemo(() => cellColors(grid, colorMode), [grid, colorMode]);
 
   // Weather: fetch once a location is known. Failure is shown, never faked.
@@ -148,6 +149,17 @@ export default function Studio() {
           </div>
         )}
         {s.placing && <div className="preview-pill">Tap the lawn to place the head</div>}
+        {!s.placing && !s.preview && s.layer === 'health' && !yard.health.length && (
+          <div className="preview-pill">No Muse health read for this yard — default shown</div>
+        )}
+        {!s.placing && !s.preview && s.layer === 'health' && yard.health.length > 0 && (
+          <div className="preview-pill">
+            {yard.health.some((h) => h.source === 'muse-vision') ? 'Grass health read by Muse Spark from your photos' : 'Grass health: hand-marked sample data'}
+          </div>
+        )}
+        {!s.placing && !s.preview && s.layer === 'coverage' && !shownLayout.sprinklers.length && (
+          <div className="preview-pill">No sprinklers yet, so it's all brown (no water)</div>
+        )}
         <Legend layer={s.layer} />
       </div>
 
@@ -181,7 +193,7 @@ function Metric({ label, value, good, bad }: { label: string; value: string; goo
 
 function Legend({ layer }: { layer: string }) {
   const items =
-    layer === 'forecast'
+    layer === 'forecast' || layer === 'health'
       ? [['#8a6237', 'dry'], ['#c8a64a', 'stressed'], ['#43a047', 'healthy']]
       : layer === 'playback'
         ? [['#86c86a', 'dry'], ['#2f7f74', 'soaking'], ['#22607f', 'wet']]

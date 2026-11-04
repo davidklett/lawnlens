@@ -9,7 +9,7 @@ export const catalogAsOf = catalogData.asOf;
 
 export type Screen = 'home' | 'scan' | 'assemble' | 'build' | 'studio';
 export type Mode = 'edit' | 'view';
-export type Layer = 'coverage' | 'playback' | 'forecast';
+export type Layer = 'health' | 'coverage' | 'playback' | 'forecast';
 export type Async<T> = { status: 'idle' } | { status: 'loading' } | { status: 'error'; error: string } | { status: 'ready'; data: T };
 
 interface State {
@@ -56,7 +56,9 @@ export const useApp = create<State>((setState, get) => ({
 
   go: (screen) => setState({ screen }),
   setYard: (yard) => {
-    setState({ yard, selectedId: null, placing: null, advice: { status: 'idle' }, preview: null, weather: { status: 'idle' }, day: 0, playT: 0, playing: false });
+    // A newly opened yard with no sprinklers starts on Muse's health read; coverage would be all "gap".
+    const opened = yard && yard.id !== get().yard?.id ? { layer: (yard.layout.sprinklers.length ? 'coverage' : 'health') as Layer } : {};
+    setState({ yard, selectedId: null, placing: null, advice: { status: 'idle' }, preview: null, weather: { status: 'idle' }, day: 0, playT: 0, playing: false, ...opened });
     persist(yard);
   },
   setDraftTiles: (draftTiles) => setState({ draftTiles }),
