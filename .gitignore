@@ -24,3 +24,7 @@ out/
 # hackathon scratch
 scratch/
 *.log
+!.env.example
+
+# raw image-generator output
+generated_images/

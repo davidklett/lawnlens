@@ -38,6 +38,21 @@ Home yards first; design so commercial properties (multi-zone, larger areas) fit
 - Visuals / overlays: Muse Image where useful, else client-side AR rendering
 - App shell: TBD (mobile-first AR; keep it minimal for the demo)
 
+## Run locally
+
+```sh
+npm install
+cp .env.example .env.local   # add MODEL_API_KEY from https://dev.meta.ai
+npm run dev                  # https://localhost:5173 (and https://<your-LAN-IP>:5173 for your phone)
+npm test                     # simulation + API unit tests
+```
+
+The dev server uses a self-signed HTTPS cert (the phone camera requires HTTPS). Accept the browser warning once.
+Without `MODEL_API_KEY`, SAM 3.1 / Muse Spark steps show a "Meta Model API unavailable" state; the editor, simulator and weather still work.
+To ship your scanned yard as the sample, export it from the studio (⤓) and save it as `public/sample-yard.json`.
+
+Design: [docs/design.md](docs/design.md) · Plan: [docs/plan.md](docs/plan.md)
+
 ## Repo state
 
 Fresh repo on `main`. Nothing scaffolded yet. Next steps:
